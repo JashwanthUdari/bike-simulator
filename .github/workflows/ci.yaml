@@ -27,17 +27,16 @@ jobs:
 
       # Step 4: Build the artifact (copy game files)
       - name: Prepare artifact
- 	 run: |
-	    mkdir build
-	    cp -r assets build/
-	    cp index.html build/
-	    cp game.js build/
-	    cp package.json build/
-
+        run: |
+          mkdir build
+          cp -r assets build/
+          cp index.html build/
+          cp game.js build/
+          cp package.json build/
 
       # Step 5: Upload artifact
       - name: Upload game build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bike-game
           path: build
