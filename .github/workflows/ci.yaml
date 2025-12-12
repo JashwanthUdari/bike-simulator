@@ -29,7 +29,8 @@ jobs:
       - name: Prepare artifact
         run: |
           mkdir build
-          cp -r * build/
+          shopt -s dotglob
+          cp -r * (build) build/
 
       # Step 5: Upload artifact
       - name: Upload game build
