@@ -1,0 +1,39 @@
+name: Build and Test Bike Simulator
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Step 3: Install http-server
+      - name: Install dependencies
+        run: npm install -g http-server
+
+      # Step 4: Build the artifact (copy game files)
+      - name: Prepare artifact
+        run: |
+          mkdir build
+          cp -r * build/
+
+      # Step 5: Upload artifact
+      - name: Upload game build
+        uses: actions/upload-artifact@v3
+        with:
+          name: bike-game
+          path: build
