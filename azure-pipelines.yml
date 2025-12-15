@@ -1,0 +1,56 @@
+# Trigger pipeline on changes to master
+trigger:
+- master
+
+# Use Microsoft-hosted agent
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+
+# -----------------------------
+# STAGE 1 — NORMAL BUILD (COPY FILES)
+# -----------------------------
+- stage: BuildApp
+  displayName: "Build Bike Simulator App"
+  jobs:
+  - job: BuildFiles
+    displayName: "Prepare build artifacts"
+    steps:
+
+    - checkout: self
+
+    - script: |
+        echo "Creating build directory..."
+        mkdir build
+        cp -r assets build/
+        cp index.html build/
+        cp game.js build/
+        cp package.json build/
+      displayName: "Copy project files"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: build
+        ArtifactName: game-build
+        publishLocation: Container
+      displayName: "Publish build artifacts"
+
+
+# -----------------------------
+# STAGE 2 — DOCKER BUILD
+# -----------------------------
+- stage: DockerBuild
+  displayName: "Docker Build Stage"
+  dependsOn: BuildApp
+  jobs:
+  - job: BuildDockerImage
+    displayName: "Build Docker Image"
+    steps:
+
+    - checkout: self
+
+    - script: |
+        echo "Building Docker image..."
+        docker build -t bike-simulator:latest .
+      displayName: "Docker Build"
