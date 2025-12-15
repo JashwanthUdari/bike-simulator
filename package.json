@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Simple 2D Bike Simulator",
   "scripts": {
-    "start": "npx http-server -p 8080"
+  "start": "npx http-server -p 8080",
+  "lint": "npx eslint ."
   },
   "dependencies": {}
 }
