@@ -1,9 +1,9 @@
-export default [
+module.exports = [
   {
     files: ["**/*.js"],
     languageOptions: {
       ecmaVersion: "latest",
-      sourceType: "module"
+      sourceType: "script"
     },
     rules: {
       "no-unused-vars": "warn",
