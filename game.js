@@ -49,18 +49,27 @@ class BikeScene extends Phaser.Scene {
 }
 
 const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: "#222",
-    physics: {
-        default: "arcade",
-        arcade: {
-            gravity: { y: 300 },
-            debug: false
-        }
-    },
-    scene: [BikeScene]
+  type: Phaser.AUTO,
+  width: window.innerWidth,
+  height: window.innerHeight,
+  backgroundColor: "#222",
+  physics: {
+    default: "arcade",
+    arcade: {
+      gravity: { y: 300 },
+      debug: false
+    }
+  },
+  scale: {
+    mode: Phaser.Scale.RESIZE,
+    autoCenter: Phaser.Scale.CENTER_BOTH
+  },
+  scene: [BikeScene]
 };
 
+
 const game = new Phaser.Game(config);
+window.addEventListener("resize", () => {
+  game.scale.resize(window.innerWidth, window.innerHeight);
+});
+
