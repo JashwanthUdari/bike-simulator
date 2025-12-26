@@ -10,24 +10,45 @@ class BikeScene extends Phaser.Scene {
     create() {
         console.log("BikeScene started!");
 
-        this.add.text(250, 20, "2D Bike Simulator", { fontSize: "28px", fill: "#fff" });
+const { width, height } = this.scale;
 
-        // Ground
-        const ground = this.physics.add.staticSprite(400, 550, null)
-            .setDisplaySize(800, 40)
-            .setVisible(false);
+// Title (top-center, responsive)
+this.add.text(
+  width / 2,
+  20,
+  "2D Bike Simulator",
+  { fontSize: "28px", fill: "#fff" }
+).setOrigin(0.5, 0);
 
-        // Bike
-        this.bike = this.physics.add.sprite(400, 300, "bike");
-        this.bike.setScale(0.5);
-        this.bike.setSize(200, 100).setOffset(100, 200);
-        this.bike.setCollideWorldBounds(true);
+// Ground (full width, bottom of screen)
+const ground = this.physics.add.staticSprite(
+  width / 2,
+  height * 0.85,
+  null
+)
+  .setDisplaySize(width, 40)
+  .setVisible(false);
 
-        this.physics.add.collider(this.bike, ground);
+// Bike (positioned safely inside screen)
+this.bike = this.physics.add.sprite(
+  width * 0.2,      // left side, visible
+  height * 0.85,    // sits on ground
+  "bike"
+);
 
-        // Controls
-        this.cursors = this.input.keyboard.createCursorKeys();
-    }
+// Bike alignment & physics
+this.bike.setOrigin(0.5, 1);           // bottom aligned
+this.bike.setScale(0.5);
+this.bike.setSize(200, 100).setOffset(100, 200);
+this.bike.setCollideWorldBounds(true);
+this.bike.body.setBounce(0);
+
+// Collision
+this.physics.add.collider(this.bike, ground);
+
+// Controls
+this.cursors = this.input.keyboard.createCursorKeys();
+
 
     update() {
         console.log("VelocityX:", this.bike.body.velocity.x);
