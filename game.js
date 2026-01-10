@@ -10,54 +10,40 @@ class BikeScene extends Phaser.Scene {
     this.load.image("bgLaptop", "assets/backgroundlaptop.png");
     this.load.image("bgMobile", "assets/backgroundmobile.png");
     this.load.image("bike", "assets/bike.png");
-    this.load.image("car", "assets/car.png");
     this.load.image("car", "assets/car1.png");
+    this.load.image("car", "assets/car.png");
+    this.load.audio("music", "assets/bg-music.mp3");
   }
 
   create() {
     const { width, height } = this.scale;
 
-    /* ===== GAME STATE ===== */
-    this.baseSpeed = 4;
-    this.speed = this.baseSpeed;
-    this.score = 0;
+    this.speed = 5;
     this.isGameOver = false;
 
     /* ===== BACKGROUND ===== */
     this.bg1 = this.add.image(width / 2, height / 2, this.bgKey)
       .setDisplaySize(width, height);
-
     this.bg2 = this.add.image(width / 2, -height / 2, this.bgKey)
       .setDisplaySize(width, height);
 
- 
+    /* ===== LANES (ONLY FOR CARS) ===== */
+    this.lanes = [
+      width * 0.35,
+      width * 0.5,
+      width * 0.65
+    ];
 
-    /* ===== BIKE ===== */
-    this.bike = this.physics.add.sprite(
-      this.lanes[this.currentLane],
-      height * 0.78,
-      "bike"
-    );
+    /* ===== BIKE (FREE MOVEMENT) ===== */
+    this.bike = this.physics.add.sprite(width / 2, height * 0.78, "bike");
     this.bike.setScale(0.32);
-    this.bike.setDepth(10);
+    this.bike.setDepth(5);
     this.bike.setCollideWorldBounds(true);
-
-    /* ===== SCORE UI ===== */
-    this.scoreText = this.add.text(
-      width - 20,
-      20,
-      "Score: 0",
-      {
-        fontSize: "24px",
-        color: "#ffffff",
-        stroke: "#000",
-        strokeThickness: 4
-      }
-    ).setOrigin(1, 0);
 
     /* ===== INPUT ===== */
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.canMove = true;
+    this.moveLeft = false;
+    this.moveRight = false;
     this.createButtons();
 
     /* ===== CARS ===== */
@@ -65,26 +51,19 @@ class BikeScene extends Phaser.Scene {
     this.physics.add.overlap(this.bike, this.cars, this.handleCrash, null, this);
 
     this.time.addEvent({
-      delay: 1400,
+      delay: 1300,
       callback: this.spawnCar,
       callbackScope: this,
       loop: true
     });
 
-    /* ===== SCORE TIMER ===== */
-    this.time.addEvent({
-      delay: 200,
-      callback: () => {
-        if (!this.isGameOver) {
-          this.score += 1;
-          this.scoreText.setText("Score: " + this.score);
+    /* ===== MUSIC ===== */
+    this.music = this.sound.add("music", { loop: true, volume: 0.5 });
 
-          if (this.score % 50 === 0) {
-            this.speed += 0.4;
-          }
-        }
-      },
-      loop: true
+    this.input.once("pointerdown", () => {
+      if (!this.music.isPlaying) {
+        this.music.play();
+      }
     });
   }
 
@@ -94,39 +73,16 @@ class BikeScene extends Phaser.Scene {
     const leftBtn = this.add.rectangle(100, height - 90, 160, 100, 0x000000, 0.6)
       .setInteractive();
     this.add.text(leftBtn.x, leftBtn.y, "LEFT", { fontSize: "24px", color: "#fff" }).setOrigin(0.5);
-    leftBtn.on("pointerdown", () => this.moveLane(-1));
+    leftBtn.on("pointerdown", () => this.moveLeft = true);
+    leftBtn.on("pointerup", () => this.moveLeft = false);
+    leftBtn.on("pointerout", () => this.moveLeft = false);
 
     const rightBtn = this.add.rectangle(width - 100, height - 90, 160, 100, 0x000000, 0.6)
       .setInteractive();
     this.add.text(rightBtn.x, rightBtn.y, "RIGHT", { fontSize: "24px", color: "#fff" }).setOrigin(0.5);
-    rightBtn.on("pointerdown", () => this.moveLane(1));
-  }
-
-  moveLane(direction) {
-    if (!this.canMove) return;
-
-    const newLane = this.currentLane + direction;
-    if (newLane < 0 || newLane > 2) return;
-
-    this.currentLane = newLane;
-    this.canMove = false;
-    this.highlightLane();
-
-    this.tweens.add({
-      targets: this.bike,
-      x: this.lanes[this.currentLane],
-      duration: 180,
-      ease: "Power2",
-      onComplete: () => this.canMove = true
-    });
-
-    this.bike.setRotation(direction * 0.15);
-  }
-
-  highlightLane() {
-    this.laneMarkers.forEach((m, i) =>
-      m.setFillStyle(0xffffff, i === this.currentLane ? 0.18 : 0.06)
-    );
+    rightBtn.on("pointerdown", () => this.moveRight = true);
+    rightBtn.on("pointerup", () => this.moveRight = false);
+    rightBtn.on("pointerout", () => this.moveRight = false);
   }
 
   spawnCar() {
@@ -134,8 +90,8 @@ class BikeScene extends Phaser.Scene {
 
     const lane = Phaser.Math.Between(0, 2);
     const car = this.cars.create(this.lanes[lane], -80, "car");
-    car.setScale(0.45);
-    car.setVelocityY(200 + this.speed * 40);
+    car.setScale(0.42);
+    car.setVelocityY(350);
   }
 
   update() {
@@ -152,14 +108,26 @@ class BikeScene extends Phaser.Scene {
       this.bg2.y = this.bg1.y - this.scale.height;
     }
 
-    /* ===== KEYBOARD ===== */
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.left)) this.moveLane(-1);
-    if (Phaser.Input.Keyboard.JustDown(this.cursors.right)) this.moveLane(1);
+    /* ===== BIKE FREE MOVEMENT ===== */
+    this.bike.setVelocityX(0);
+
+    if (this.moveLeft || this.cursors.left.isDown) {
+      this.bike.setVelocityX(-300);
+      this.bike.setRotation(-0.12);
+    }
+
+    if (this.moveRight || this.cursors.right.isDown) {
+      this.bike.setVelocityX(300);
+      this.bike.setRotation(0.12);
+    }
 
     this.bike.rotation *= 0.9;
 
+    /* ===== CLEANUP ===== */
     this.cars.children.iterate(car => {
-      if (car && car.y > this.scale.height + 100) car.destroy();
+      if (car && car.y > this.scale.height + 100) {
+        car.destroy();
+      }
     });
   }
 
@@ -169,21 +137,35 @@ class BikeScene extends Phaser.Scene {
     this.isGameOver = true;
     this.physics.pause();
 
-    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    /* ===== STOP MUSIC ===== */
+    if (this.music && this.music.isPlaying) {
+      this.music.stop();
+    }
+
+    /* ===== VIBRATION ===== */
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 200]);
+    }
 
     const { width, height } = this.scale;
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6);
 
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6);
     this.add.text(width / 2, height / 2 - 40, "GAME OVER", {
       fontSize: "48px",
       color: "#ff0000"
     }).setOrigin(0.5);
 
-    const btn = this.add.rectangle(width / 2, height / 2 + 40, 220, 70, 0x00aa00)
+    const restartBtn = this.add.rectangle(width / 2, height / 2 + 40, 220, 70, 0x00aa00)
       .setInteractive();
 
-    this.add.text(btn.x, btn.y, "RESTART", { fontSize: "26px", color: "#fff" }).setOrigin(0.5);
-    btn.on("pointerdown", () => this.scene.restart());
+    this.add.text(restartBtn.x, restartBtn.y, "RESTART", {
+      fontSize: "26px",
+      color: "#fff"
+    }).setOrigin(0.5);
+
+    restartBtn.on("pointerdown", () => {
+      this.scene.restart();
+    });
   }
 }
 
@@ -201,4 +183,7 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-window.addEventListener("resize", () => game.scale.resize(window.innerWidth, window.innerHeight));
+
+window.addEventListener("resize", () => {
+  game.scale.resize(window.innerWidth, window.innerHeight);
+});
