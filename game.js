@@ -13,21 +13,68 @@ class BikeScene extends Phaser.Scene {
     const { width, height } = this.scale;
     this.isGameOver = false;
 
-    /* ================= BACKGROUND ================= */
+    /* ========== SINGLE BACKGROUND (NO DUPLICATION) ========== */
     this.bg = this.add.tileSprite(
       width / 2,
       height / 2,
       width,
       height,
       "bg"
-    );
+    ).setOrigin(0.5);
 
-    /* ================= BIKE ================= */
+    /* ========== TITLE (CENTERED) ========== */
+    this.add.text(
+      width / 2,
+      40,
+      "2D BIKE SIMULATOR",
+      {
+        fontFamily: "Arial Black",
+        fontSize: "36px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 6
+      }
+    ).setOrigin(0.5);
+
+    /* ========== BIKE ========== */
     this.bike = this.physics.add.sprite(width / 2, height * 0.8, "bike");
     this.bike.setScale(0.5);
     this.bike.setCollideWorldBounds(true);
 
-    /* ================= HURDLES ================= */
+    /* ========== KEYBOARD CONTROLS (ADDED BACK) ========== */
+    this.cursors = this.input.keyboard.createCursorKeys();
+
+    /* ========== BUTTON STATES ========== */
+    this.moveLeft = false;
+    this.moveRight = false;
+
+    /* ========== LEFT BUTTON ========== */
+    const leftBtn = this.add.rectangle(80, height - 80, 120, 80, 0x000000, 0.6)
+      .setInteractive();
+
+    this.add.text(leftBtn.x, leftBtn.y, "LEFT", {
+      fontSize: "20px",
+      fill: "#fff"
+    }).setOrigin(0.5);
+
+    leftBtn.on("pointerdown", () => (this.moveLeft = true));
+    leftBtn.on("pointerup", () => (this.moveLeft = false));
+    leftBtn.on("pointerout", () => (this.moveLeft = false));
+
+    /* ========== RIGHT BUTTON ========== */
+    const rightBtn = this.add.rectangle(220, height - 80, 120, 80, 0x000000, 0.6)
+      .setInteractive();
+
+    this.add.text(rightBtn.x, rightBtn.y, "RIGHT", {
+      fontSize: "20px",
+      fill: "#fff"
+    }).setOrigin(0.5);
+
+    rightBtn.on("pointerdown", () => (this.moveRight = true));
+    rightBtn.on("pointerup", () => (this.moveRight = false));
+    rightBtn.on("pointerout", () => (this.moveRight = false));
+
+    /* ========== HURDLES ========== */
     this.hurdles = this.physics.add.group();
 
     this.physics.add.overlap(
@@ -38,49 +85,6 @@ class BikeScene extends Phaser.Scene {
       this
     );
 
-    /* ================= BUTTON STATES ================= */
-    this.moveLeft = false;
-    this.moveRight = false;
-
-    /* ================= LEFT BUTTON ================= */
-    this.leftBtn = this.add.rectangle(
-      80,
-      height - 80,
-      120,
-      80,
-      0x000000,
-      0.6
-    ).setInteractive();
-
-    this.add.text(this.leftBtn.x, this.leftBtn.y, "LEFT", {
-      fontSize: "20px",
-      fill: "#fff"
-    }).setOrigin(0.5);
-
-    this.leftBtn.on("pointerdown", () => (this.moveLeft = true));
-    this.leftBtn.on("pointerup", () => (this.moveLeft = false));
-    this.leftBtn.on("pointerout", () => (this.moveLeft = false));
-
-    /* ================= RIGHT BUTTON ================= */
-    this.rightBtn = this.add.rectangle(
-      220,
-      height - 80,
-      120,
-      80,
-      0x000000,
-      0.6
-    ).setInteractive();
-
-    this.add.text(this.rightBtn.x, this.rightBtn.y, "RIGHT", {
-      fontSize: "20px",
-      fill: "#fff"
-    }).setOrigin(0.5);
-
-    this.rightBtn.on("pointerdown", () => (this.moveRight = true));
-    this.rightBtn.on("pointerup", () => (this.moveRight = false));
-    this.rightBtn.on("pointerout", () => (this.moveRight = false));
-
-    /* ================= SPAWN HURDLES ================= */
     this.hurdleTimer = this.time.addEvent({
       delay: 1500,
       callback: this.spawnHurdle,
@@ -94,7 +98,6 @@ class BikeScene extends Phaser.Scene {
 
     const x = Phaser.Math.Between(100, this.scale.width - 100);
     const hurdle = this.hurdles.create(x, -50, "hurdle");
-
     hurdle.setScale(0.5);
     hurdle.setVelocityY(300);
   }
@@ -102,29 +105,29 @@ class BikeScene extends Phaser.Scene {
   update() {
     if (this.isGameOver) return;
 
-    /* ===== Scroll background ===== */
+    /* ========== BACKGROUND SCROLL (SINGLE IMAGE) ========== */
     this.bg.tilePositionY -= 4;
 
-    /* ===== Reset bike ===== */
+    /* ========== RESET BIKE ========== */
     this.bike.setVelocityX(0);
     this.bike.setRotation(0);
 
-    /* ===== Left ===== */
-    if (this.moveLeft) {
+    /* ========== LEFT ========== */
+    if (this.moveLeft || this.cursors.left.isDown) {
       this.bike.setVelocityX(-300);
-      this.bike.setRotation(-0.15); // tilt left
+      this.bike.setRotation(-0.12);
     }
 
-    /* ===== Right ===== */
-    if (this.moveRight) {
+    /* ========== RIGHT ========== */
+    if (this.moveRight || this.cursors.right.isDown) {
       this.bike.setVelocityX(300);
-      this.bike.setRotation(0.15); // tilt right
+      this.bike.setRotation(0.12);
     }
 
-    /* ===== Cleanup hurdles ===== */
-    this.hurdles.children.iterate(hurdle => {
-      if (hurdle && hurdle.y > this.scale.height + 50) {
-        hurdle.destroy();
+    /* ========== CLEANUP ========== */
+    this.hurdles.children.iterate(h => {
+      if (h && h.y > this.scale.height + 50) {
+        h.destroy();
       }
     });
   }
@@ -136,21 +139,13 @@ class BikeScene extends Phaser.Scene {
 
     const { width, height } = this.scale;
 
-    this.add.rectangle(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      0x000000,
-      0.6
-    );
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.6);
 
     this.add.text(width / 2, height / 2 - 40, "GAME OVER", {
       fontSize: "48px",
       fill: "#ff0000"
     }).setOrigin(0.5);
 
-    /* ================= RESTART BUTTON ================= */
     const restartBtn = this.add.rectangle(
       width / 2,
       height / 2 + 40,
@@ -171,17 +166,14 @@ class BikeScene extends Phaser.Scene {
   }
 }
 
-/* ================= GAME CONFIG ================= */
+/* ========== CONFIG ========== */
 const config = {
   type: Phaser.AUTO,
   width: window.innerWidth,
   height: window.innerHeight,
-  backgroundColor: "#000",
   physics: {
     default: "arcade",
-    arcade: {
-      debug: false
-    }
+    arcade: { debug: false }
   },
   scale: {
     mode: Phaser.Scale.RESIZE,
@@ -192,7 +184,6 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-/* ================= RESIZE ================= */
 window.addEventListener("resize", () => {
   game.scale.resize(window.innerWidth, window.innerHeight);
 });
