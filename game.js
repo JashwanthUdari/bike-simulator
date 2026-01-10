@@ -43,7 +43,7 @@ class BikeScene extends Phaser.Scene {
 
     /* ========= BIKE ========= */
     this.bike = this.physics.add.sprite(width / 2, height * 0.78, "bike");
-    this.bike.setScale(0.45);
+    this.bike.setScale(0.30); //Bike size
     this.bike.setDepth(5);
     this.bike.setCollideWorldBounds(true);
 
