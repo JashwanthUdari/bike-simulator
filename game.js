@@ -4,77 +4,41 @@ class BikeScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("road", "assets/background.png");
     this.load.image("bike", "assets/bike.png");
-    this.load.image("bg", "assets/background.png");
     this.load.image("hurdle", "assets/hurdle.png");
   }
 
   create() {
     const { width, height } = this.scale;
+    this.speed = 4;
     this.isGameOver = false;
 
-    /* ========== SINGLE BACKGROUND (NO DUPLICATION) ========== */
-    this.bg = this.add.tileSprite(
-      width / 2,
-      height / 2,
-      width,
-      height,
-      "bg"
-    ).setOrigin(0.5);
+    /* ===== BACKGROUND (NO TILESPRITE) ===== */
+    this.bg1 = this.add.image(width / 2, height / 2, "road")
+      .setDisplaySize(width, height);
 
-    /* ========== TITLE (CENTERED) ========== */
-    this.add.text(
-      width / 2,
-      40,
-      "2D BIKE SIMULATOR",
-      {
-        fontFamily: "Arial Black",
-        fontSize: "36px",
-        color: "#ffffff",
-        stroke: "#000000",
-        strokeThickness: 6
-      }
-    ).setOrigin(0.5);
+    this.bg2 = this.add.image(width / 2, -height / 2, "road")
+      .setDisplaySize(width, height);
 
-    /* ========== BIKE ========== */
-    this.bike = this.physics.add.sprite(width / 2, height * 0.8, "bike");
-    this.bike.setScale(0.5);
+    /* ===== BIKE ===== */
+    this.bike = this.physics.add.sprite(width / 2, height * 0.78, "bike");
+    this.bike.setScale(0.45);
+    this.bike.setDepth(10);
     this.bike.setCollideWorldBounds(true);
 
-    /* ========== KEYBOARD CONTROLS (ADDED BACK) ========== */
-    this.cursors = this.input.keyboard.createCursorKeys();
+    /* Remove white feel by blending */
+    this.bike.setAlpha(0.98);
 
-    /* ========== BUTTON STATES ========== */
+    /* ===== CONTROLS ===== */
+    this.cursors = this.input.keyboard.createCursorKeys();
     this.moveLeft = false;
     this.moveRight = false;
 
-    /* ========== LEFT BUTTON ========== */
-    const leftBtn = this.add.rectangle(80, height - 80, 120, 80, 0x000000, 0.6)
-      .setInteractive();
+    /* ===== BUTTONS ===== */
+    this.createButtons();
 
-    this.add.text(leftBtn.x, leftBtn.y, "LEFT", {
-      fontSize: "20px",
-      fill: "#fff"
-    }).setOrigin(0.5);
-
-    leftBtn.on("pointerdown", () => (this.moveLeft = true));
-    leftBtn.on("pointerup", () => (this.moveLeft = false));
-    leftBtn.on("pointerout", () => (this.moveLeft = false));
-
-    /* ========== RIGHT BUTTON ========== */
-    const rightBtn = this.add.rectangle(220, height - 80, 120, 80, 0x000000, 0.6)
-      .setInteractive();
-
-    this.add.text(rightBtn.x, rightBtn.y, "RIGHT", {
-      fontSize: "20px",
-      fill: "#fff"
-    }).setOrigin(0.5);
-
-    rightBtn.on("pointerdown", () => (this.moveRight = true));
-    rightBtn.on("pointerup", () => (this.moveRight = false));
-    rightBtn.on("pointerout", () => (this.moveRight = false));
-
-    /* ========== HURDLES ========== */
+    /* ===== HURDLES ===== */
     this.hurdles = this.physics.add.group();
 
     this.physics.add.overlap(
@@ -85,57 +49,76 @@ class BikeScene extends Phaser.Scene {
       this
     );
 
-    this.hurdleTimer = this.time.addEvent({
-      delay: 1500,
+    this.time.addEvent({
+      delay: 1600,
       callback: this.spawnHurdle,
       callbackScope: this,
       loop: true
     });
   }
 
+  createButtons() {
+    const { height } = this.scale;
+
+    const left = this.add.rectangle(80, height - 80, 120, 80, 0x000000, 0.5)
+      .setInteractive();
+    this.add.text(left.x, left.y, "LEFT", { color: "#fff" }).setOrigin(0.5);
+
+    left.on("pointerdown", () => this.moveLeft = true);
+    left.on("pointerup", () => this.moveLeft = false);
+    left.on("pointerout", () => this.moveLeft = false);
+
+    const right = this.add.rectangle(220, height - 80, 120, 80, 0x000000, 0.5)
+      .setInteractive();
+    this.add.text(right.x, right.y, "RIGHT", { color: "#fff" }).setOrigin(0.5);
+
+    right.on("pointerdown", () => this.moveRight = true);
+    right.on("pointerup", () => this.moveRight = false);
+    right.on("pointerout", () => this.moveRight = false);
+  }
+
   spawnHurdle() {
     if (this.isGameOver) return;
 
-    const x = Phaser.Math.Between(100, this.scale.width - 100);
-    const hurdle = this.hurdles.create(x, -50, "hurdle");
-    hurdle.setScale(0.5);
-    hurdle.setVelocityY(300);
+    const x = Phaser.Math.Between(120, this.scale.width - 120);
+    const h = this.hurdles.create(x, -50, "hurdle");
+    h.setScale(0.6);
+    h.setVelocityY(300);
   }
 
   update() {
     if (this.isGameOver) return;
 
-    /* ========== BACKGROUND SCROLL (SINGLE IMAGE) ========== */
-    this.bg.tilePositionY -= 4;
+    /* ===== BACKGROUND SCROLL ===== */
+    this.bg1.y += this.speed;
+    this.bg2.y += this.speed;
 
-    /* ========== RESET BIKE ========== */
+    if (this.bg1.y >= this.scale.height * 1.5) {
+      this.bg1.y = this.bg2.y - this.scale.height;
+    }
+
+    if (this.bg2.y >= this.scale.height * 1.5) {
+      this.bg2.y = this.bg1.y - this.scale.height;
+    }
+
+    /* ===== BIKE MOVEMENT ===== */
     this.bike.setVelocityX(0);
     this.bike.setRotation(0);
 
-    /* ========== LEFT ========== */
     if (this.moveLeft || this.cursors.left.isDown) {
       this.bike.setVelocityX(-300);
       this.bike.setRotation(-0.12);
     }
 
-    /* ========== RIGHT ========== */
     if (this.moveRight || this.cursors.right.isDown) {
       this.bike.setVelocityX(300);
       this.bike.setRotation(0.12);
     }
-
-    /* ========== CLEANUP ========== */
-    this.hurdles.children.iterate(h => {
-      if (h && h.y > this.scale.height + 50) {
-        h.destroy();
-      }
-    });
   }
 
   gameOver() {
     this.isGameOver = true;
     this.physics.pause();
-    this.hurdleTimer.remove(false);
 
     const { width, height } = this.scale;
 
@@ -143,43 +126,30 @@ class BikeScene extends Phaser.Scene {
 
     this.add.text(width / 2, height / 2 - 40, "GAME OVER", {
       fontSize: "48px",
-      fill: "#ff0000"
+      color: "#ff0000"
     }).setOrigin(0.5);
 
-    const restartBtn = this.add.rectangle(
-      width / 2,
-      height / 2 + 40,
-      200,
-      60,
-      0x00aa00,
-      0.8
-    ).setInteractive();
+    const btn = this.add.rectangle(width / 2, height / 2 + 40, 200, 60, 0x00aa00)
+      .setInteractive();
 
-    this.add.text(restartBtn.x, restartBtn.y, "RESTART", {
-      fontSize: "24px",
-      fill: "#fff"
-    }).setOrigin(0.5);
+    this.add.text(btn.x, btn.y, "RESTART", { color: "#fff", fontSize: "24px" })
+      .setOrigin(0.5);
 
-    restartBtn.on("pointerdown", () => {
-      this.scene.restart();
-    });
+    btn.on("pointerdown", () => this.scene.restart());
   }
 }
 
-/* ========== CONFIG ========== */
+/* ===== CONFIG ===== */
 const config = {
   type: Phaser.AUTO,
   width: window.innerWidth,
   height: window.innerHeight,
-  physics: {
-    default: "arcade",
-    arcade: { debug: false }
-  },
+  physics: { default: "arcade" },
   scale: {
     mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
-  scene: [BikeScene]
+  scene: BikeScene
 };
 
 const game = new Phaser.Game(config);
