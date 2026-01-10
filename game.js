@@ -30,19 +30,7 @@ class BikeScene extends Phaser.Scene {
     this.bg2 = this.add.image(width / 2, -height / 2, this.bgKey)
       .setDisplaySize(width, height);
 
-    /* ===== LANES ===== */
-    this.lanes = [
-      width * 0.35,
-      width * 0.5,
-      width * 0.65
-    ];
-    this.currentLane = 1;
-
-    /* ===== LANE MARKERS ===== */
-    this.laneMarkers = this.lanes.map(x =>
-      this.add.rectangle(x, height / 2, 6, height, 0xffffff, 0.08)
-    );
-    this.highlightLane();
+ 
 
     /* ===== BIKE ===== */
     this.bike = this.physics.add.sprite(
