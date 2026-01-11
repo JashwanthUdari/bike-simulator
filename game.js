@@ -39,13 +39,13 @@ class BikeScene extends Phaser.Scene {
     this.title = this.add.text(width / 2, 30, "2D BIKE SIMULATOR", {
       fontSize: "32px",
       fontStyle: "bold",
-      color: "#ffffff"
+      color: "#333333"
     }).setOrigin(0.5);
 
     /* ================= SCORE ================= */
     this.scoreText = this.add.text(20, 20, "Score: 0", {
       fontSize: "18px",
-      color: "#ffffff"
+      color: "#333333"
     });
 
     /* ================= BIKE ================= */
@@ -84,7 +84,7 @@ class BikeScene extends Phaser.Scene {
     /* ================= GUIDE ================= */
     this.guide = this.add.text(width / 2, height / 2,
       "←  LEFT     RIGHT  →",
-      { fontSize: "26px", color: "#ffffff" }
+      { fontSize: "26px", color: "#333333" }
     ).setOrigin(0.5);
 
     this.time.delayedCall(3000, () => {
