@@ -68,12 +68,12 @@ class BikeScene extends Phaser.Scene {
 
     this.scoreText = this.add.text(20, 20, "Score: 0", {
       fontSize: "18px",
-      color: "#b50f0f"
+      color: "#f8f3f3"
     });
 
     this.levelText = this.add.text(20, 45, "Level: 1", {
       fontSize: "16px",
-      color: "#b50f0f"
+      color: "#f8f3f3"
     });
 
     /* ================= BIKE ================= */
@@ -180,7 +180,7 @@ class BikeScene extends Phaser.Scene {
 
     const t2 = this.add.text(0, -40,
       `Your score: ${Math.floor(this.score)}`,
-      { fontSize: "22px", color: "#ff8181" }
+      { fontSize: "22px", color: "#f8f3f3" }
     ).setOrigin(0.5);
 
     const t3 = this.add.text(
@@ -188,7 +188,7 @@ class BikeScene extends Phaser.Scene {
       "Don't compare just beat your own score",
       {
         fontSize: "18px",
-        color: "#ff8181",
+        color: "#f8f3f3",
         align: "center",
         wordWrap: { width: 320 }
       }
