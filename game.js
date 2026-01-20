@@ -4,21 +4,20 @@ class BikeScene extends Phaser.Scene {
   }
 
   preload() {
-    /* ================= BACKGROUNDS ================= */
+    // Backgrounds
     this.load.image("bg_day_laptop", "assets/background_day_laptop.png");
     this.load.image("bg_night_laptop", "assets/background_night_laptop.png");
     this.load.image("bg_day_mobile", "assets/background_day_mobile.png");
     this.load.image("bg_night_mobile", "assets/background_night_mobile.png");
 
-    /* ================= VEHICLES ================= */
+    // Sprites
     this.load.image("bike_day", "assets/bikeday.png");
     this.load.image("bike_night", "assets/bikenight.png");
     this.load.image("car_day", "assets/car.png");
     this.load.image("car_night", "assets/car_night.png");
 
-    /* ================= AUDIO ================= */
+    // Audio
     this.load.audio("music", "assets/bg-music.mp3");
-    this.load.audio("crash", "assets/shit.mp3");
   }
 
   create() {
@@ -33,17 +32,34 @@ class BikeScene extends Phaser.Scene {
       this.sys.game.device.os.iOS;
 
     /* ================= BACKGROUND ================= */
-    this.bgKey = this.isMobile ? "bg_day_mobile" : "bg_day_laptop";
+    const bgKey = this.isMobile ? "bg_day_mobile" : "bg_day_laptop";
 
-    this.bg = this.add.image(width / 2, height / 2, this.bgKey)
+    // 🔧 FIX: single full-size background (NO repeat on laptop)
+    this.bg = this.add.image(width / 2, height / 2, bgKey)
       .setDisplaySize(width, height)
       .setDepth(-10);
+
+    this.bgScrollY = 0;
 
     /* ================= MUSIC ================= */
     this.music = this.sound.add("music", { loop: true, volume: 0.5 });
     this.music.play();
 
-    this.crashSound = this.sound.add("crash", { volume: 1 });
+    /* ================= ROAD GEOMETRY ================= */
+    // Road is centered in your image
+    this.roadCenter = width / 2;
+
+    // Road width visually measured from your background
+    this.roadWidth = width * 0.28;
+
+    this.roadLeft = this.roadCenter - this.roadWidth / 2;
+    this.roadRight = this.roadCenter + this.roadWidth / 2;
+
+    // Two lanes split by yellow dashed line
+    this.lanes = [
+      this.roadCenter - this.roadWidth * 0.25, // LEFT lane
+      this.roadCenter + this.roadWidth * 0.25  // RIGHT lane
+    ];
 
     /* ================= TITLE ================= */
     this.add.text(width / 2, 30, "2D BIKE SIMULATOR", {
@@ -58,25 +74,13 @@ class BikeScene extends Phaser.Scene {
       color: "#333333"
     });
 
-    /* ================= ROAD BOUNDS ================= */
-    // 🔧 Adjust ONLY these if road width changes
-    this.roadLeft = width * 0.38;
-    this.roadRight = width * 0.62;
-    this.roadCenter = (this.roadLeft + this.roadRight) / 2;
-
-    /* ================= LANES ================= */
-    this.lanes = [
-      Phaser.Math.Linear(this.roadLeft, this.roadCenter, 0.5),
-      Phaser.Math.Linear(this.roadCenter, this.roadRight, 0.5)
-    ];
-
     /* ================= BIKE ================= */
     this.bike = this.physics.add.sprite(
       this.roadCenter,
       height * 0.8,
       "bike_day"
     );
-    this.bike.setScale(0.22); // 🔧 BIKE SIZE
+    this.bike.setScale(0.22);
     this.bike.setCollideWorldBounds(false);
 
     /* ================= INPUT ================= */
@@ -84,6 +88,7 @@ class BikeScene extends Phaser.Scene {
     this.turnDirection = 0;
 
     this.input.on("pointerdown", p => {
+      if (this.isGameOver) return;
       this.turnDirection = p.x < width / 2 ? -1 : 1;
     });
 
@@ -103,8 +108,8 @@ class BikeScene extends Phaser.Scene {
         const laneX = Phaser.Utils.Array.GetRandom(this.lanes);
         const carKey = this.isNight ? "car_night" : "car_day";
 
-        const car = this.cars.create(laneX, -100, carKey);
-        car.setScale(0.18); // 🔧 CAR SIZE
+        const car = this.cars.create(laneX, -80, carKey);
+        car.setScale(0.18);
         car.setVelocityY(260);
       }
     });
@@ -118,23 +123,23 @@ class BikeScene extends Phaser.Scene {
     );
 
     /* ================= GUIDE ================= */
-    this.guide = this.add.text(
+    const guide = this.add.text(
       width / 2,
       height / 2,
-      "← LEFT     RIGHT →",
+      "← LEFT    RIGHT →",
       { fontSize: "26px", color: "#333333" }
     ).setOrigin(0.5);
 
     this.time.delayedCall(3000, () => {
       this.tweens.add({
-        targets: this.guide,
+        targets: guide,
         alpha: 0,
         duration: 500,
-        onComplete: () => this.guide.destroy()
+        onComplete: () => guide.destroy()
       });
     });
 
-    /* ================= DAY/NIGHT SWITCH ================= */
+    /* ================= DAY / NIGHT SWITCH ================= */
     this.time.addEvent({
       delay: 20000,
       loop: true,
@@ -149,12 +154,17 @@ class BikeScene extends Phaser.Scene {
     this.isNight = !this.isNight;
 
     const bgKey = this.isMobile
-      ? this.isNight ? "bg_night_mobile" : "bg_day_mobile"
-      : this.isNight ? "bg_night_laptop" : "bg_day_laptop";
+      ? (this.isNight ? "bg_night_mobile" : "bg_day_mobile")
+      : (this.isNight ? "bg_night_laptop" : "bg_day_laptop");
 
     this.bg.setTexture(bgKey);
     this.bg.setDisplaySize(this.scale.width, this.scale.height);
+
     this.bike.setTexture(this.isNight ? "bike_night" : "bike_day");
+
+    this.cars.getChildren().forEach(car => {
+      car.setTexture(this.isNight ? "car_night" : "car_day");
+    });
   }
 
   handleCrash() {
@@ -162,10 +172,9 @@ class BikeScene extends Phaser.Scene {
 
     this.isGameOver = true;
     this.music.stop();
-    this.crashSound.play();
     this.carTimer.remove(false);
-
     this.cars.setVelocityY(0);
+
     if (navigator.vibrate) navigator.vibrate(300);
 
     const { width, height } = this.scale;
@@ -174,11 +183,7 @@ class BikeScene extends Phaser.Scene {
       width / 2,
       height / 2 - 40,
       `Well tried.\nYour score: ${Math.floor(this.score)}`,
-      {
-        fontSize: "22px",
-        color: "#333333",
-        align: "center"
-      }
+      { fontSize: "22px", color: "#333333", align: "center" }
     ).setOrigin(0.5);
 
     const restart = this.add.text(
@@ -199,33 +204,31 @@ class BikeScene extends Phaser.Scene {
   update() {
     if (this.isGameOver) return;
 
-    /* ================= BACKGROUND SCROLL ================= */
-    this.bg.y += 4;
-    if (this.bg.y >= this.scale.height / 2 + 20) {
-      this.bg.y = this.scale.height / 2;
-    }
+    /* BACKGROUND SCROLL (vertical only) */
+    this.bgScrollY += 4;
+    this.bg.y = this.scale.height / 2 + (this.bgScrollY % 40);
 
-    /* ================= SCORE ================= */
+    /* SCORE */
     this.score += 0.1;
     this.scoreText.setText("Score: " + Math.floor(this.score));
 
-    /* ================= MOVEMENT ================= */
+    /* BIKE CONTROL */
     let dir = 0;
     if (this.cursors.left.isDown) dir = -1;
     else if (this.cursors.right.isDown) dir = 1;
     else dir = this.turnDirection;
 
-    const speed = this.isMobile ? 7 : 4;
+    const speed = this.isMobile ? 6 : 4;
     this.bike.x += dir * speed;
 
-    /* ================= BIKE LIMIT ================= */
+    // Clamp bike strictly inside road
     this.bike.x = Phaser.Math.Clamp(
       this.bike.x,
       this.roadLeft + 20,
       this.roadRight - 20
     );
 
-    /* ================= BIKE TILT ================= */
+    /* BIKE TILT */
     this.bike.rotation = Phaser.Math.Linear(
       this.bike.rotation,
       dir * 0.25,
