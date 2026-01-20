@@ -82,7 +82,7 @@ class BikeScene extends Phaser.Scene {
       height * 0.8,
       "bike_day"
     );
-    this.bike.setScale(0.22);
+    this.bike.setScale(0.20);
 
     /* ================= INPUT ================= */
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -109,7 +109,7 @@ class BikeScene extends Phaser.Scene {
         const key = this.isNight ? "car_night" : "car_day";
 
         const car = this.cars.create(laneX, -80, key);
-        car.setScale(0.18);
+        car.setScale(0.25);
         car.setVelocityY(this.baseCarSpeed);
       }
     });
