@@ -68,12 +68,12 @@ class BikeScene extends Phaser.Scene {
 
     this.scoreText = this.add.text(20, 20, "Score: 0", {
       fontSize: "18px",
-      color: "#333333"
+      color: "#b50f0f"
     });
 
     this.levelText = this.add.text(20, 45, "Level: 1", {
       fontSize: "16px",
-      color: "#333333"
+      color: "#b50f0f"
     });
 
     /* ================= BIKE ================= */
@@ -109,7 +109,7 @@ class BikeScene extends Phaser.Scene {
         const key = this.isNight ? "car_night" : "car_day";
 
         const car = this.cars.create(laneX, -80, key);
-        car.setScale(1.0);
+        car.setScale(0.99);
         car.setVelocityY(this.baseCarSpeed);
       }
     });
@@ -175,12 +175,12 @@ class BikeScene extends Phaser.Scene {
 
     const t1 = this.add.text(0, -80, "Well tried.", {
       fontSize: "26px",
-      color: "#333333"
+      color: "#ff8181"
     }).setOrigin(0.5);
 
     const t2 = this.add.text(0, -40,
       `Your score: ${Math.floor(this.score)}`,
-      { fontSize: "22px", color: "#333333" }
+      { fontSize: "22px", color: "#ff8181" }
     ).setOrigin(0.5);
 
     const t3 = this.add.text(
@@ -188,7 +188,7 @@ class BikeScene extends Phaser.Scene {
       "Don't compare just beat your own score",
       {
         fontSize: "18px",
-        color: "#333333",
+        color: "#ff8181",
         align: "center",
         wordWrap: { width: 320 }
       }
