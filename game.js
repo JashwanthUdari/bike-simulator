@@ -109,7 +109,7 @@ class BikeScene extends Phaser.Scene {
         const key = this.isNight ? "car_night" : "car_day";
 
         const car = this.cars.create(laneX, -80, key);
-        car.setScale(0.30);
+        car.setScale(0.33);
         car.setVelocityY(this.baseCarSpeed);
       }
     });
@@ -175,7 +175,7 @@ class BikeScene extends Phaser.Scene {
 
     const t1 = this.add.text(0, -80, "Well tried.", {
       fontSize: "26px",
-      color: "#ff8181"
+      color: "#f8f3f3"
     }).setOrigin(0.5);
 
     const t2 = this.add.text(0, -40,
