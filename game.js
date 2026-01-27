@@ -118,7 +118,7 @@ this.lanes = [
         const key = this.isNight ? "car_night" : "car_day";
 
         const car = this.cars.create(laneX, -80, key);
-        car.setScale(0.33);
+        car.setScale(0.30);
         car.setVelocityY(this.baseCarSpeed);
       }
     });
