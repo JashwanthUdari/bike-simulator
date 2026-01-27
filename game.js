@@ -25,8 +25,8 @@ class BikeScene extends Phaser.Scene {
 
     /* ================= LEVEL SYSTEM ================= */
     this.level = 1;
-    this.baseCarSpeed = 260;   // starting speed
-    this.speedIncrement = 40;  // speed added every level
+    this.baseCarSpeed = 260;
+    this.speedIncrement = 50;
 
     const { width, height } = this.scale;
     this.isMobile =
@@ -39,10 +39,17 @@ class BikeScene extends Phaser.Scene {
     this.roadLeft = this.roadCenter - this.roadWidth / 2;
     this.roadRight = this.roadCenter + this.roadWidth / 2;
 
+    /* =====================================================
+       🔧 LANE ADJUSTMENT SECTION (ONLY TUNE HERE)
+       ===================================================== */
+    this.leftLaneOffset  = 0.30; // move left lane more to left
+    this.rightLaneOffset = 0.20; // keep right lane inward (gap from road edge)
+
     this.lanes = [
-      this.roadCenter - this.roadWidth * 0.25,
-      this.roadCenter + this.roadWidth * 0.25
+      this.roadCenter - this.roadWidth * this.leftLaneOffset,
+      this.roadCenter + this.roadWidth * this.rightLaneOffset
     ];
+    /* ===================================================== */
 
     /* ================= BACKGROUND LOOP ================= */
     this.bgKey = this.isMobile ? "bg_day_mobile" : "bg_day_laptop";
@@ -124,7 +131,7 @@ class BikeScene extends Phaser.Scene {
 
     /* ================= LEVEL TIMER ================= */
     this.levelTimer = this.time.addEvent({
-      delay: 20000, // 20 seconds
+      delay: 20000,
       loop: true,
       callback: () => {
         this.level++;
@@ -173,37 +180,35 @@ class BikeScene extends Phaser.Scene {
 
     const panel = this.add.container(width / 2, height / 2);
 
-    const t1 = this.add.text(0, -80, "Well tried.", {
-      fontSize: "26px",
-      color: "#f8f3f3"
-    }).setOrigin(0.5);
+    panel.add([
+      this.add.text(0, -80, "Well tried.", {
+        fontSize: "26px",
+        color: "#f8f3f3"
+      }).setOrigin(0.5),
 
-    const t2 = this.add.text(0, -40,
-      `Your score: ${Math.floor(this.score)}`,
-      { fontSize: "22px", color: "#f8f3f3" }
-    ).setOrigin(0.5);
+      this.add.text(0, -40,
+        `Your score: ${Math.floor(this.score)}`,
+        { fontSize: "22px", color: "#f8f3f3" }
+      ).setOrigin(0.5),
 
-    const t3 = this.add.text(
-      0, 0,
-      "Don't compare just beat your own score",
-      {
-        fontSize: "18px",
-        color: "#f8f3f3",
-        align: "center",
-        wordWrap: { width: 320 }
-      }
-    ).setOrigin(0.5);
+      this.add.text(0, 0,
+        "Don't compare just beat your own score",
+        {
+          fontSize: "18px",
+          color: "#f8f3f3",
+          align: "center",
+          wordWrap: { width: 320 }
+        }
+      ).setOrigin(0.5),
 
-    const restart = this.add.text(0, 60, "RESTART", {
-      fontSize: "22px",
-      backgroundColor: "#00aa00",
-      padding: { x: 24, y: 10 },
-      color: "#ffffff"
-    }).setOrigin(0.5).setInteractive();
-
-    restart.on("pointerdown", () => this.scene.restart());
-
-    panel.add([t1, t2, t3, restart]);
+      this.add.text(0, 60, "RESTART", {
+        fontSize: "22px",
+        backgroundColor: "#00aa00",
+        padding: { x: 24, y: 10 },
+        color: "#ffffff"
+      }).setOrigin(0.5).setInteractive()
+        .on("pointerdown", () => this.scene.restart())
+    ]);
   }
 
   update() {
