@@ -42,8 +42,8 @@ class BikeScene extends Phaser.Scene {
     /* =====================================================
        🔧 LANE ADJUSTMENT SECTION (ONLY TUNE HERE)
        ===================================================== */
-    this.leftLaneOffset  = 0.30; // move left lane more to left
-    this.rightLaneOffset = 0.20; // keep right lane inward (gap from road edge)
+    this.leftLaneOffset  = 0.10; // move left lane more to left
+    this.rightLaneOffset = 0.10; // keep right lane inward (gap from road edge)
 
     this.lanes = [
       this.roadCenter - this.roadWidth * this.leftLaneOffset,
