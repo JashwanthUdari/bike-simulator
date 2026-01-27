@@ -42,13 +42,15 @@ class BikeScene extends Phaser.Scene {
     /* =====================================================
        🔧 LANE ADJUSTMENT SECTION (ONLY TUNE HERE)
        ===================================================== */
-    this.leftLaneOffset  = 0.30; // move left lane more to left
-    this.rightLaneOffset = 0.18; // keep right lane inward (gap from road edge)
+    this.leftLaneOffset   = 0.35; // left lane (move more left if needed)
+this.middleLaneOffset = 0.00; // exact center (yellow divider)
+this.rightLaneOffset  = 0.25; // right lane (gap from road edge)
 
-    this.lanes = [
-      this.roadCenter - this.roadWidth * this.leftLaneOffset,
-      this.roadCenter + this.roadWidth * this.rightLaneOffset
-    ];
+this.lanes = [
+  this.roadCenter - this.roadWidth * this.leftLaneOffset,   // LEFT
+  this.roadCenter + this.roadWidth * this.middleLaneOffset, // MIDDLE
+  this.roadCenter + this.roadWidth * this.rightLaneOffset   // RIGHT
+];
     /* ===================================================== */
 
     /* ================= BACKGROUND LOOP ================= */
@@ -192,7 +194,7 @@ class BikeScene extends Phaser.Scene {
       ).setOrigin(0.5),
 
       this.add.text(0, 0,
-        "Don't compare just beat your own score",
+        "Car might come from anywhere. Be Indian driver",
         {
           fontSize: "18px",
           color: "#f8f3f3",
