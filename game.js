@@ -194,7 +194,12 @@ this.lanes = [
       ).setOrigin(0.5),
 
       this.add.text(0, 0,
+<<<<<<< HEAD
         "Be Indian driver\nExpect the unexpected traffic 😉",
+=======
+        "Be an Indian driver \n 
+        Expect the unexpected traffic 😉",
+>>>>>>> e542ece22259915b0fbefabda004035a4be31188
         {
           fontSize: "18px",
           color: "#f8f3f3",
