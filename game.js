@@ -194,12 +194,13 @@ this.lanes = [
       ).setOrigin(0.5),
 
       this.add.text(0, 0,
-        "Be Indian driver \n Expect the unexpected traffic 😉",
+        "Be Indian driver\nExpect the unexpected traffic 😉",
         {
           fontSize: "18px",
           color: "#f8f3f3",
           align: "center",
-          wordWrap: { width: 320 }
+          wordWrap: { width: 320 },
+          lineSpacing: 6
         }
       ).setOrigin(0.5),
 
