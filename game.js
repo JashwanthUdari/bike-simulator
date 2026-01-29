@@ -236,42 +236,44 @@ class BikeScene extends Phaser.Scene {
 
     const panel = this.add.container(width / 2, height / 2);
 
-    const bg = this.add.rectangle(0, 0, 380, 240, 0xffffff, 0.9)
-      .setStrokeStyle(2, 0xcccccc);
-
-    const t1 = this.add.text(0, -70, "Well tried.", {
-      fontSize: "26px",
-      lineSpacing: 12,
-      color: "#333333"
-    }).setOrigin(0.5);
-
-    const t2 = this.add.text(0, -35,
-      `Your score: ${Math.floor(this.score)}`,
-      { fontSize: "22px", color: "#333333", lineSpacing: 12, }
-    ).setOrigin(0.5);
-
-    const t3 = this.add.text(0, 0,
-      "Be an Indian driver\nExpect the unexpected traffic 😉",
-      {
-        fontSize: "18px",
-        color: "#333333",
-        align: "center",
-        lineSpacing: 12,
-        wordWrap: { width: 320 }
-      }
-    ).setOrigin(0.5);
-
-    const restart = this.add.text(0, 70, "RESTART", {
+    const bg = this.add.rectangle(0, 0, 400, 270, 0xffffff, 0.92)
+    .setStrokeStyle(2, 0xcccccc);
+  
+  const t1 = this.add.text(0, -90, "Well tried.", {
+    fontSize: "26px",
+    color: "#333333"
+  }).setOrigin(0.5);
+  
+  const t2 = this.add.text(0, -45,
+    `Your score: ${Math.floor(this.score)}`,
+    {
       fontSize: "22px",
-      backgroundColor: "#00aa00",
-      padding: { x: 26, y: 12 },
-      color: "#ffffff"
-    }).setOrigin(0.5).setInteractive();
-
-    restart.on("pointerdown", () => this.scene.restart());
-
-    panel.add([bg, t1, t2, t3, restart]);
-    panel.setScale(0.6).setAlpha(0);
+      color: "#333333"
+    }
+  ).setOrigin(0.5);
+  
+  const t3 = this.add.text(0, 5,
+    "Be an Indian driver\nExpect the unexpected traffic 😉",
+    {
+      fontSize: "18px",
+      color: "#333333",
+      align: "center",
+      lineSpacing: 14,          // ✅ spacing between wrapped lines
+      wordWrap: { width: 320 }
+    }
+  ).setOrigin(0.5);
+  
+  const restart = this.add.text(0, 85, "RESTART", {
+    fontSize: "22px",
+    backgroundColor: "#00aa00",
+    padding: { x: 26, y: 12 },
+    color: "#ffffff"
+  }).setOrigin(0.5).setInteractive();
+  
+  restart.on("pointerdown", () => this.scene.restart());
+  
+    panel.add([bg, t1, t2, t3, restart]);  
+    panel.setScale(0.6).setAlpha(0); //Unchanged
 
     this.tweens.add({
       targets: panel,
