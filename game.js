@@ -239,12 +239,12 @@ class BikeScene extends Phaser.Scene {
     const bg = this.add.rectangle(0, 0, 400, 270, 0xffffff, 0.92)
     .setStrokeStyle(2, 0xcccccc);
   
-  const t1 = this.add.text(0, -90, "Well tried.", {
+  const t1 = this.add.text(0, -80, "Well tried.", {
     fontSize: "26px",
     color: "#333333"
   }).setOrigin(0.5);
   
-  const t2 = this.add.text(0, -45,
+  const t2 = this.add.text(0, -40,
     `Your score: ${Math.floor(this.score)}`,
     {
       fontSize: "22px",
@@ -252,7 +252,7 @@ class BikeScene extends Phaser.Scene {
     }
   ).setOrigin(0.5);
   
-  const t3 = this.add.text(0, 5,
+  const t3 = this.add.text(0, 10,
     "Be an Indian driver\nExpect the unexpected traffic 😉",
     {
       fontSize: "18px",
@@ -263,7 +263,7 @@ class BikeScene extends Phaser.Scene {
     }
   ).setOrigin(0.5);
   
-  const restart = this.add.text(0, 85, "RESTART", {
+  const restart = this.add.text(0, 80, "RESTART", {
     fontSize: "22px",
     backgroundColor: "#00aa00",
     padding: { x: 26, y: 12 },
