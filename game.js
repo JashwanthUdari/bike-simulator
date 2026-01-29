@@ -239,7 +239,7 @@ class BikeScene extends Phaser.Scene {
     const bg = this.add.rectangle(0, 0, 400, 270, 0xffffff, 0.92)
     .setStrokeStyle(2, 0xcccccc);
   
-  const t1 = this.add.text(0, -80, "Well tried.", {
+  const t1 = this.add.text(0, -80, "Well tried", {
     fontSize: "26px",
     color: "#333333"
   }).setOrigin(0.5);
@@ -252,8 +252,8 @@ class BikeScene extends Phaser.Scene {
     }
   ).setOrigin(0.5);
   
-  const t3 = this.add.text(0, 20,
-    "Be an Indian driver\nExpect the unexpected traffic 😉",
+  const t3 = this.add.text(0, 0,
+    "Be an Indian driver\nExpect the unexpected 😉",
     {
       fontSize: "18px",
       color: "#333333",
