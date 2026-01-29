@@ -247,11 +247,11 @@ class BikeScene extends Phaser.Scene {
 
     const t2 = this.add.text(0, -35,
       `Your score: ${Math.floor(this.score)}`,
-      { fontSize: "22px", color: "#333333" }
+      { fontSize: "22px", color: "#333333", lineSpacing: 12, }
     ).setOrigin(0.5);
 
     const t3 = this.add.text(0, 0,
-      "Be Indian driver\nExpect the unexpected traffic 😉",
+      "Be an Indian driver\nExpect the unexpected traffic 😉",
       {
         fontSize: "18px",
         color: "#333333",
