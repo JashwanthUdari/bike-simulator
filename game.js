@@ -252,13 +252,13 @@ class BikeScene extends Phaser.Scene {
     }
   ).setOrigin(0.5);
   
-  const t3 = this.add.text(0, 10,
+  const t3 = this.add.text(0, 20,
     "Be an Indian driver\nExpect the unexpected traffic 😉",
     {
       fontSize: "18px",
       color: "#333333",
       align: "center",
-      lineSpacing: 14,          // ✅ spacing between wrapped lines
+      lineSpacing: 12,          // ✅ spacing between wrapped lines
       wordWrap: { width: 320 }
     }
   ).setOrigin(0.5);
