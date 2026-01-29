@@ -164,12 +164,12 @@ class BikeScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xcccccc);
 
     const title = this.add.text(0, -60,
-      "Welcome Rider 🚴",
+      "Welcome Rider 🏍",
       { fontSize: "24px", color: "#333333" }
     ).setOrigin(0.5);
 
     const note = this.add.text(0, -20,
-      "Avoid traffic and survive as long as possible",
+      "Avoid traffic. Survive",
       { fontSize: "16px", color: "#333333", align: "center", wordWrap: { width: 300 } }
     ).setOrigin(0.5);
 
@@ -255,6 +255,7 @@ class BikeScene extends Phaser.Scene {
         fontSize: "18px",
         color: "#333333",
         align: "center",
+        lineSpacing: 12,
         wordWrap: { width: 320 }
       }
     ).setOrigin(0.5);
