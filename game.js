@@ -22,6 +22,7 @@ class BikeScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isNight = false;
     this.score = 0;
+    this.isStarted = false; // 🔑 START CONTROL
 
     /* ================= LEVEL SYSTEM ================= */
     this.level = 1;
@@ -39,19 +40,16 @@ class BikeScene extends Phaser.Scene {
     this.roadLeft = this.roadCenter - this.roadWidth / 2;
     this.roadRight = this.roadCenter + this.roadWidth / 2;
 
-    /* =====================================================
-       🔧 LANE ADJUSTMENT SECTION (ONLY TUNE HERE)
-       ===================================================== */
-    this.leftLaneOffset   = 0.35; // left lane (move more left if needed)
-this.middleLaneOffset = 0.00; // exact center (yellow divider)
-this.rightLaneOffset  = 0.25; // right lane (gap from road edge)
+    /* 🔧 LANE ADJUSTMENT */
+    this.leftLaneOffset   = 0.35;
+    this.middleLaneOffset = 0.0;
+    this.rightLaneOffset  = 0.25;
 
-this.lanes = [
-  this.roadCenter - this.roadWidth * this.leftLaneOffset,   // LEFT
-  this.roadCenter + this.roadWidth * this.middleLaneOffset, // MIDDLE
-  this.roadCenter + this.roadWidth * this.rightLaneOffset   // RIGHT
-];
-    /* ===================================================== */
+    this.lanes = [
+      this.roadCenter - this.roadWidth * this.leftLaneOffset,
+      this.roadCenter + this.roadWidth * this.middleLaneOffset,
+      this.roadCenter + this.roadWidth * this.rightLaneOffset
+    ];
 
     /* ================= BACKGROUND LOOP ================= */
     this.bgKey = this.isMobile ? "bg_day_mobile" : "bg_day_laptop";
@@ -66,7 +64,6 @@ this.lanes = [
 
     /* ================= MUSIC ================= */
     this.music = this.sound.add("music", { loop: true, volume: 0.5 });
-    this.music.play();
 
     /* ================= UI ================= */
     this.add.text(width / 2, 30, "2D BIKE SIMULATOR", {
@@ -98,6 +95,7 @@ this.lanes = [
     this.turnDirection = 0;
 
     this.input.on("pointerdown", p => {
+      if (!this.isStarted) return;
       this.turnDirection = p.x < width / 2 ? -1 : 1;
     });
 
@@ -111,6 +109,7 @@ this.lanes = [
     this.carTimer = this.time.addEvent({
       delay: 1200,
       loop: true,
+      paused: true, // 🔑 WAIT FOR START
       callback: () => {
         if (this.isGameOver) return;
 
@@ -135,6 +134,7 @@ this.lanes = [
     this.levelTimer = this.time.addEvent({
       delay: 20000,
       loop: true,
+      paused: true,
       callback: () => {
         this.level++;
         this.baseCarSpeed += this.speedIncrement;
@@ -146,9 +146,63 @@ this.lanes = [
     this.time.addEvent({
       delay: 20000,
       loop: true,
+      paused: true,
       callback: this.toggleDayNight,
       callbackScope: this
     });
+
+    /* ================= START SCREEN ================= */
+    this.showStartScreen();
+  }
+
+  showStartScreen() {
+    const { width, height } = this.scale;
+
+    this.startPanel = this.add.container(width / 2, height / 2);
+
+    const bg = this.add.rectangle(0, 0, 360, 220, 0xffffff, 0.85)
+      .setStrokeStyle(2, 0xcccccc);
+
+    const title = this.add.text(0, -60,
+      "Welcome Rider 🚴",
+      { fontSize: "24px", color: "#333333" }
+    ).setOrigin(0.5);
+
+    const note = this.add.text(0, -20,
+      "Avoid traffic and survive as long as possible",
+      { fontSize: "16px", color: "#333333", align: "center", wordWrap: { width: 300 } }
+    ).setOrigin(0.5);
+
+    const startBtn = this.add.text(0, 40, "START", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 30, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    startBtn.on("pointerdown", () => {
+      this.startPanel.destroy();
+      this.startGame();
+    });
+
+    this.startPanel.add([bg, title, note, startBtn]);
+
+    this.startPanel.setScale(0.6).setAlpha(0);
+    this.tweens.add({
+      targets: this.startPanel,
+      scale: 1,
+      alpha: 1,
+      duration: 400,
+      ease: "Back.Out"
+    });
+  }
+
+  startGame() {
+    this.isStarted = true;
+    this.music.play();
+    this.carTimer.paused = false;
+    this.levelTimer.paused = false;
+    this.time.events.forEach(e => e.paused = false);
   }
 
   toggleDayNight() {
@@ -182,57 +236,66 @@ this.lanes = [
 
     const panel = this.add.container(width / 2, height / 2);
 
-    panel.add([
-      this.add.text(0, -80, "Well tried.", {
-        fontSize: "26px",
-        color: "#f8f3f3"
-      }).setOrigin(0.5),
+    const bg = this.add.rectangle(0, 0, 380, 240, 0xffffff, 0.9)
+      .setStrokeStyle(2, 0xcccccc);
 
-      this.add.text(0, -40,
-        `Your score: ${Math.floor(this.score)}`,
-        { fontSize: "22px", color: "#f8f3f3" }
-      ).setOrigin(0.5),
+    const t1 = this.add.text(0, -70, "Well tried.", {
+      fontSize: "26px",
+      color: "#333333"
+    }).setOrigin(0.5);
 
-      this.add.text(0, 0,
-        "Be Indian driver\nExpect the unexpected traffic 😉",
-        {
-          fontSize: "18px",
-          color: "#f8f3f3",
-          align: "center",
-          wordWrap: { width: 320 }
-        }
-      ).setOrigin(0.5),
+    const t2 = this.add.text(0, -35,
+      `Your score: ${Math.floor(this.score)}`,
+      { fontSize: "22px", color: "#333333" }
+    ).setOrigin(0.5);
 
-      this.add.text(0, 60, "RESTART", {
-        fontSize: "22px",
-        backgroundColor: "#00aa00",
-        padding: { x: 24, y: 10 },
-        color: "#ffffff"
-      }).setOrigin(0.5).setInteractive()
-        .on("pointerdown", () => this.scene.restart())
-    ]);
+    const t3 = this.add.text(0, 0,
+      "Be Indian driver\nExpect the unexpected traffic 😉",
+      {
+        fontSize: "18px",
+        color: "#333333",
+        align: "center",
+        wordWrap: { width: 320 }
+      }
+    ).setOrigin(0.5);
+
+    const restart = this.add.text(0, 70, "RESTART", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 26, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    restart.on("pointerdown", () => this.scene.restart());
+
+    panel.add([bg, t1, t2, t3, restart]);
+    panel.setScale(0.6).setAlpha(0);
+
+    this.tweens.add({
+      targets: panel,
+      scale: 1,
+      alpha: 1,
+      duration: 400,
+      ease: "Back.Out"
+    });
   }
 
   update() {
-    if (this.isGameOver) return;
+    if (!this.isStarted || this.isGameOver) return;
 
-    /* BACKGROUND LOOP */
     const scrollSpeed = 4;
     this.bg1.y += scrollSpeed;
     this.bg2.y += scrollSpeed;
 
-    if (this.bg1.y >= this.scale.height) {
+    if (this.bg1.y >= this.scale.height)
       this.bg1.y = this.bg2.y - this.scale.height;
-    }
-    if (this.bg2.y >= this.scale.height) {
-      this.bg2.y = this.bg1.y - this.scale.height;
-    }
 
-    /* SCORE */
+    if (this.bg2.y >= this.scale.height)
+      this.bg2.y = this.bg1.y - this.scale.height;
+
     this.score += 0.1;
     this.scoreText.setText("Score: " + Math.floor(this.score));
 
-    /* BIKE MOVE */
     let dir = 0;
     if (this.cursors.left.isDown) dir = -1;
     else if (this.cursors.right.isDown) dir = 1;
