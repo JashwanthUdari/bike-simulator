@@ -22,7 +22,7 @@ class BikeScene extends Phaser.Scene {
     this.isGameOver = false;
     this.isNight = false;
     this.score = 0;
-    this.isStarted = false; // 🔑 START CONTROL
+    this.isStarted = false;
 
     /* ================= LEVEL SYSTEM ================= */
     this.level = 1;
@@ -40,15 +40,11 @@ class BikeScene extends Phaser.Scene {
     this.roadLeft = this.roadCenter - this.roadWidth / 2;
     this.roadRight = this.roadCenter + this.roadWidth / 2;
 
-    /* 🔧 LANE ADJUSTMENT */
-    this.leftLaneOffset   = 0.35;
-    this.middleLaneOffset = 0.0;
-    this.rightLaneOffset  = 0.25;
-
+    /* ================= LANES ================= */
     this.lanes = [
-      this.roadCenter - this.roadWidth * this.leftLaneOffset,
-      this.roadCenter + this.roadWidth * this.middleLaneOffset,
-      this.roadCenter + this.roadWidth * this.rightLaneOffset
+      this.roadCenter - this.roadWidth * 0.35,
+      this.roadCenter,
+      this.roadCenter + this.roadWidth * 0.25
     ];
 
     /* ================= BACKGROUND LOOP ================= */
@@ -99,9 +95,7 @@ class BikeScene extends Phaser.Scene {
       this.turnDirection = p.x < width / 2 ? -1 : 1;
     });
 
-    this.input.on("pointerup", () => {
-      this.turnDirection = 0;
-    });
+    this.input.on("pointerup", () => this.turnDirection = 0);
 
     /* ================= CARS ================= */
     this.cars = this.physics.add.group();
@@ -109,7 +103,7 @@ class BikeScene extends Phaser.Scene {
     this.carTimer = this.time.addEvent({
       delay: 1200,
       loop: true,
-      paused: true, // 🔑 WAIT FOR START
+      paused: true,
       callback: () => {
         if (this.isGameOver) return;
 
@@ -142,67 +136,26 @@ class BikeScene extends Phaser.Scene {
       }
     });
 
-    /* ================= DAY / NIGHT ================= */
-    startGame() {
-    this.isStarted = true;
-    this.music.play();
-    this.carTimer.paused = false;
-    this.levelTimer.paused = false;
-    this.dayNightTimer.paused = false; // ✅ THIS FIXES NIGHT MODE
-}
+    /* ================= DAY / NIGHT TIMER (FIXED) ================= */
+    this.dayNightTimer = this.time.addEvent({
+      delay: 20000,
+      loop: true,
+      paused: true,
+      callback: this.toggleDayNight,
+      callbackScope: this
+    });
 
     /* ================= START SCREEN ================= */
     this.showStartScreen();
   }
 
-  showStartScreen() {
-    const { width, height } = this.scale;
-
-    this.startPanel = this.add.container(width / 2, height / 2);
-
-    const bg = this.add.rectangle(0, 0, 360, 220, 0xffffff, 0.85)
-      .setStrokeStyle(2, 0xcccccc);
-
-    const title = this.add.text(0, -60,
-      "Welcome Rider 🏍",
-      { fontSize: "24px", color: "#333333" }
-    ).setOrigin(0.5);
-
-    const note = this.add.text(0, -20,
-      "Avoid traffic. Survive",
-      { fontSize: "16px", color: "#333333", align: "center", wordWrap: { width: 300 } }
-    ).setOrigin(0.5);
-
-    const startBtn = this.add.text(0, 40, "START", {
-      fontSize: "22px",
-      backgroundColor: "#00aa00",
-      padding: { x: 30, y: 12 },
-      color: "#ffffff"
-    }).setOrigin(0.5).setInteractive();
-
-    startBtn.on("pointerdown", () => {
-      this.startPanel.destroy();
-      this.startGame();
-    });
-
-    this.startPanel.add([bg, title, note, startBtn]);
-
-    this.startPanel.setScale(0.6).setAlpha(0);
-    this.tweens.add({
-      targets: this.startPanel,
-      scale: 1,
-      alpha: 1,
-      duration: 400,
-      ease: "Back.Out"
-    });
-  }
-
   startGame() {
     this.isStarted = true;
     this.music.play();
+
     this.carTimer.paused = false;
     this.levelTimer.paused = false;
-    this.time.events.forEach(e => e.paused = false);
+    this.dayNightTimer.paused = false;
   }
 
   toggleDayNight() {
@@ -230,6 +183,7 @@ class BikeScene extends Phaser.Scene {
     this.music.stop();
     this.carTimer.remove(false);
     this.levelTimer.remove(false);
+    this.dayNightTimer.remove(false);
     this.cars.setVelocityY(0);
 
     const { width, height } = this.scale;
@@ -237,44 +191,41 @@ class BikeScene extends Phaser.Scene {
     const panel = this.add.container(width / 2, height / 2);
 
     const bg = this.add.rectangle(0, 0, 400, 270, 0xffffff, 0.92)
-    .setStrokeStyle(2, 0xcccccc);
-  
-  const t1 = this.add.text(0, -80, "Well tried", {
-    fontSize: "26px",
-    color: "#333333"
-  }).setOrigin(0.5);
-  
-  const t2 = this.add.text(0, -40,
-    `Your score: ${Math.floor(this.score)}`,
-    {
-      fontSize: "22px",
-      color: "#333333"
-    }
-  ).setOrigin(0.5);
-  
-  const t3 = this.add.text(0, -10,
-    "Be an Indian driver\nExpect the unexpected 😉",
-    {
-      fontSize: "18px",
-      color: "#333333",
-      align: "center",
-      lineSpacing: 12,          // ✅ spacing between wrapped lines
-      wordWrap: { width: 320 }
-    }
-  ).setOrigin(0.5);
-  
-  const restart = this.add.text(0, 80, "RESTART", {
-    fontSize: "22px",
-    backgroundColor: "#00aa00",
-    padding: { x: 26, y: 12 },
-    color: "#ffffff"
-  }).setOrigin(0.5).setInteractive();
-  
-  restart.on("pointerdown", () => this.scene.restart());
-  
-    panel.add([bg, t1, t2, t3, restart]);  
-    panel.setScale(0.6).setAlpha(0); //Unchanged
+      .setStrokeStyle(2, 0xcccccc);
 
+    const t1 = this.add.text(0, -90, "Well tried.", {
+      fontSize: "26px",
+      color: "#333333"
+    }).setOrigin(0.5);
+
+    const t2 = this.add.text(0, -50,
+      `Your score: ${Math.floor(this.score)}`,
+      { fontSize: "22px", color: "#333333" }
+    ).setOrigin(0.5);
+
+    const t3 = this.add.text(0, 0,
+      "Be an Indian driver\nExpect the unexpected traffic 😉",
+      {
+        fontSize: "18px",
+        color: "#333333",
+        align: "center",
+        lineSpacing: 14,
+        wordWrap: { width: 320 }
+      }
+    ).setOrigin(0.5);
+
+    const restart = this.add.text(0, 90, "RESTART", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 26, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    restart.on("pointerdown", () => this.scene.restart());
+
+    panel.add([bg, t1, t2, t3, restart]);
+
+    panel.setScale(0.6).setAlpha(0);
     this.tweens.add({
       targets: panel,
       scale: 1,
