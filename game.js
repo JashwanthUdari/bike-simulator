@@ -143,13 +143,13 @@ class BikeScene extends Phaser.Scene {
     });
 
     /* ================= DAY / NIGHT ================= */
-    this.time.addEvent({
-      delay: 20000,
-      loop: true,
-      paused: true,
-      callback: this.toggleDayNight,
-      callbackScope: this
-    });
+    startGame() {
+    this.isStarted = true;
+    this.music.play();
+    this.carTimer.paused = false;
+    this.levelTimer.paused = false;
+    this.dayNightTimer.paused = false; // ✅ THIS FIXES NIGHT MODE
+}
 
     /* ================= START SCREEN ================= */
     this.showStartScreen();
