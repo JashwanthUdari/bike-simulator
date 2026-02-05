@@ -242,8 +242,8 @@ class BikeScene extends Phaser.Scene {
       { fontSize: "22px", color: "#333333" }
     ).setOrigin(0.5);
 
-    const t3 = this.add.text(0, 10,
-      "Be Indian driver\nExpect the unexpected traffic 😉",
+    const t3 = this.add.text(0, 0,
+      "Be Indian driver 😉",
       {
         fontSize: "18px",
         color: "#333333",
