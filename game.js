@@ -22,6 +22,7 @@ class BikeScene extends Phaser.Scene {
     /* ================= FLAGS ================= */
     this.isGameOver = false;
     this.isNight = false;
+    this.isStarted = false;
     this.score = 0;
     this.isStarted = false;
 
@@ -41,6 +42,10 @@ class BikeScene extends Phaser.Scene {
     this.roadLeft = this.roadCenter - this.roadWidth / 2;
     this.roadRight = this.roadCenter + this.roadWidth / 2;
 
+<<<<<<< HEAD
+=======
+    /* 🔧 LANE ADJUSTMENT */
+>>>>>>> fc400a616645d04f6fa717842c5389a57cfe8ded
     this.lanes = [
       this.roadCenter - this.roadWidth * 0.35,
       this.roadCenter,
@@ -59,7 +64,11 @@ class BikeScene extends Phaser.Scene {
       .setDisplaySize(width, height);
 
     /* ================= MUSIC ================= */
+<<<<<<< HEAD
     this.music = null;
+=======
+    this.music = this.sound.add("music", { loop: true, volume: 0.5 });
+>>>>>>> fc400a616645d04f6fa717842c5389a57cfe8ded
 
     /* ================= UI ================= */
     this.add.text(width / 2, 30, "2D BIKE SIMULATOR", {
@@ -70,12 +79,12 @@ class BikeScene extends Phaser.Scene {
 
     this.scoreText = this.add.text(20, 20, "Score: 0", {
       fontSize: "18px",
-      color: "#f8f3f3"
+      color: "#ffffff"
     });
 
     this.levelText = this.add.text(20, 45, "Level: 1", {
       fontSize: "16px",
-      color: "#f8f3f3"
+      color: "#ffffff"
     });
 
     /* ================= BIKE ================= */
@@ -84,7 +93,7 @@ class BikeScene extends Phaser.Scene {
       height * 0.8,
       "bike_day"
     );
-    this.bike.setScale(0.20);
+    this.bike.setScale(0.2);
 
     /* ================= INPUT ================= */
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -95,9 +104,7 @@ class BikeScene extends Phaser.Scene {
       this.turnDirection = p.x < width / 2 ? -1 : 1;
     });
 
-    this.input.on("pointerup", () => {
-      this.turnDirection = 0;
-    });
+    this.input.on("pointerup", () => this.turnDirection = 0);
 
     /* ================= CARS ================= */
     this.cars = this.physics.add.group();
@@ -113,7 +120,7 @@ class BikeScene extends Phaser.Scene {
         const key = this.isNight ? "car_night" : "car_day";
 
         const car = this.cars.create(laneX, -80, key);
-        car.setScale(0.30);
+        car.setScale(0.3);
         car.setVelocityY(this.baseCarSpeed);
       }
     });
@@ -138,7 +145,11 @@ class BikeScene extends Phaser.Scene {
       }
     });
 
+<<<<<<< HEAD
     /* ================= DAY / NIGHT ================= */
+=======
+    /* ================= DAY / NIGHT TIMER ================= */
+>>>>>>> fc400a616645d04f6fa717842c5389a57cfe8ded
     this.dayNightTimer = this.time.addEvent({
       delay: 20000,
       loop: true,
@@ -147,6 +158,7 @@ class BikeScene extends Phaser.Scene {
       callbackScope: this
     });
 
+<<<<<<< HEAD
     /* ================= MUSIC SELECTION ================= */
     this.showMusicSelector();
   }
@@ -191,6 +203,62 @@ class BikeScene extends Phaser.Scene {
     this.music.play();
 
     this.isStarted = true;
+=======
+    /* ================= START SCREEN ================= */
+    this.showStartScreen();
+  }
+
+  showStartScreen() {
+    const { width, height } = this.scale;
+
+    this.startPanel = this.add.container(width / 2, height / 2);
+
+    const bg = this.add.rectangle(0, 0, 360, 220, 0xffffff, 0.9)
+      .setStrokeStyle(2, 0xcccccc);
+
+    const title = this.add.text(0, -60, "Welcome Rider 🏍", {
+      fontSize: "24px",
+      color: "#333333"
+    }).setOrigin(0.5);
+
+    const note = this.add.text(0, -20,
+      "Avoid traffic. Survive.",
+      {
+        fontSize: "16px",
+        color: "#333333",
+        align: "center",
+        wordWrap: { width: 300 }
+      }
+    ).setOrigin(0.5);
+
+    const startBtn = this.add.text(0, 50, "START", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 30, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    startBtn.on("pointerdown", () => {
+      this.startPanel.destroy();
+      this.startGame();
+    });
+
+    this.startPanel.add([bg, title, note, startBtn]);
+
+    this.startPanel.setScale(0.6).setAlpha(0);
+    this.tweens.add({
+      targets: this.startPanel,
+      scale: 1,
+      alpha: 1,
+      duration: 400,
+      ease: "Back.Out"
+    });
+  }
+
+  startGame() {
+    this.isStarted = true;
+    this.music.play();
+>>>>>>> fc400a616645d04f6fa717842c5389a57cfe8ded
     this.carTimer.paused = false;
     this.levelTimer.paused = false;
     this.dayNightTimer.paused = false;
@@ -225,7 +293,57 @@ class BikeScene extends Phaser.Scene {
     this.dayNightTimer.remove(false);
     this.cars.setVelocityY(0);
 
+<<<<<<< HEAD
     this.showMusicSelector();
+=======
+    const { width, height } = this.scale;
+
+    const panel = this.add.container(width / 2, height / 2);
+
+    const bg = this.add.rectangle(0, 0, 400, 260, 0xffffff, 0.95)
+      .setStrokeStyle(2, 0xcccccc);
+
+    const t1 = this.add.text(0, -70, "Well tried.", {
+      fontSize: "26px",
+      color: "#333333"
+    }).setOrigin(0.5);
+
+    const t2 = this.add.text(0, -35,
+      `Your score: ${Math.floor(this.score)}`,
+      { fontSize: "22px", color: "#333333" }
+    ).setOrigin(0.5);
+
+    const t3 = this.add.text(0, 5,
+      "Be an Indian driver\nExpect the unexpected 😉",
+      {
+        fontSize: "18px",
+        color: "#333333",
+        align: "center",
+        lineSpacing: 12,
+        wordWrap: { width: 320 }
+      }
+    ).setOrigin(0.5);
+
+    const restart = this.add.text(0, 85, "RESTART", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 26, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    restart.on("pointerdown", () => this.scene.restart());
+
+    panel.add([bg, t1, t2, t3, restart]);
+    panel.setScale(0.6).setAlpha(0);
+
+    this.tweens.add({
+      targets: panel,
+      scale: 1,
+      alpha: 1,
+      duration: 400,
+      ease: "Back.Out"
+    });
+>>>>>>> fc400a616645d04f6fa717842c5389a57cfe8ded
   }
 
   update() {
