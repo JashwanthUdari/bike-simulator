@@ -163,16 +163,16 @@ class BikeScene extends Phaser.Scene {
       color: "#333333"
     }).setOrigin(0.5);
 
-    const gameBtn = this.add.text(0, -10, "Game-BGM", {
+    const gameBtn = this.add.text(0, -10, "Game-Theme", {
       fontSize: "20px",
-      backgroundColor: "#0077cc",
+      backgroundColor: "#a77373",
       padding: { x: 24, y: 10 },
       color: "#ffffff"
     }).setOrigin(0.5).setInteractive();
 
-    const phonkBtn = this.add.text(0, 50, "Phonk-BGM", {
+    const phonkBtn = this.add.text(0, 50, "Phonk-Theme", {
       fontSize: "20px",
-      backgroundColor: "#000000",
+      backgroundColor: "#a77373",
       padding: { x: 24, y: 10 },
       color: "#ffffff"
     }).setOrigin(0.5).setInteractive();
@@ -242,7 +242,7 @@ class BikeScene extends Phaser.Scene {
       { fontSize: "22px", color: "#333333" }
     ).setOrigin(0.5);
 
-    const t3 = this.add.text(0, 0,
+    const t3 = this.add.text(0, 10,
       "Be Indian driver\nExpect the unexpected traffic 😉",
       {
         fontSize: "18px",
