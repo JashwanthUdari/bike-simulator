@@ -22,8 +22,9 @@ class BikeScene extends Phaser.Scene {
     /* ================= FLAGS ================= */
     this.isGameOver = false;
     this.isNight = false;
-    this.score = 0;
     this.isStarted = false;
+    this.score = 0;
+    this.selectedMusicKey = null;
 
     /* ================= LEVEL SYSTEM ================= */
     this.level = 1;
@@ -57,9 +58,6 @@ class BikeScene extends Phaser.Scene {
     this.bg2 = this.add.image(width / 2, -height, this.bgKey)
       .setOrigin(0.5, 0)
       .setDisplaySize(width, height);
-
-    /* ================= MUSIC ================= */
-    this.music = null;
 
     /* ================= UI ================= */
     this.add.text(width / 2, 30, "2D BIKE SIMULATOR", {
@@ -151,41 +149,43 @@ class BikeScene extends Phaser.Scene {
     this.showMusicSelector();
   }
 
+  /* ================= MUSIC SELECTION ================= */
   showMusicSelector() {
     const { width, height } = this.scale;
 
-    this.selectorPanel = this.add.container(width / 2, height / 2);
+    this.musicPanel = this.add.container(width / 2, height / 2);
 
     const bg = this.add.rectangle(0, 0, 380, 220, 0xffffff, 0.92)
       .setStrokeStyle(2, 0xcccccc);
 
-    const title = this.add.text(0, -70, "Select Background Music", {
+    const title = this.add.text(0, -70, "Select your BG Music 🎶🎼", {
       fontSize: "22px",
       color: "#333333"
     }).setOrigin(0.5);
 
-    const btnGame = this.add.text(0, -10, "Game-BGM", {
+    const gameBtn = this.add.text(0, -10, "Game-BGM", {
       fontSize: "20px",
       backgroundColor: "#0077cc",
       padding: { x: 24, y: 10 },
       color: "#ffffff"
     }).setOrigin(0.5).setInteractive();
 
-    const btnPhonk = this.add.text(0, 50, "Phonk-BGM", {
+    const phonkBtn = this.add.text(0, 50, "Phonk-BGM", {
       fontSize: "20px",
       backgroundColor: "#000000",
       padding: { x: 24, y: 10 },
       color: "#ffffff"
     }).setOrigin(0.5).setInteractive();
 
-    btnGame.on("pointerdown", () => this.startGameWithMusic("game_bgm"));
-    btnPhonk.on("pointerdown", () => this.startGameWithMusic("phonk_bgm"));
+    gameBtn.on("pointerdown", () => this.startGame("game_bgm"));
+    phonkBtn.on("pointerdown", () => this.startGame("phonk_bgm"));
 
-    this.selectorPanel.add([bg, title, btnGame, btnPhonk]);
+    this.musicPanel.add([bg, title, gameBtn, phonkBtn]);
   }
 
-  startGameWithMusic(key) {
-    this.selectorPanel.destroy();
+  startGame(key) {
+    this.musicPanel.destroy();
+    this.selectedMusicKey = key;
 
     this.music = this.sound.add(key, { loop: true, volume: 0.5 });
     this.music.play();
@@ -218,14 +218,54 @@ class BikeScene extends Phaser.Scene {
     if (this.isGameOver) return;
 
     this.isGameOver = true;
-    if (this.music) this.music.stop();
+    this.music.stop();
 
     this.carTimer.remove(false);
     this.levelTimer.remove(false);
     this.dayNightTimer.remove(false);
     this.cars.setVelocityY(0);
 
-    this.showMusicSelector();
+    const { width, height } = this.scale;
+
+    const panel = this.add.container(width / 2, height / 2);
+
+    const bg = this.add.rectangle(0, 0, 400, 260, 0xffffff, 0.92)
+      .setStrokeStyle(2, 0xcccccc);
+
+    const t1 = this.add.text(0, -80, "Well tried.", {
+      fontSize: "26px",
+      color: "#333333"
+    }).setOrigin(0.5);
+
+    const t2 = this.add.text(0, -40,
+      `Your score: ${Math.floor(this.score)}`,
+      { fontSize: "22px", color: "#333333" }
+    ).setOrigin(0.5);
+
+    const t3 = this.add.text(0, 0,
+      "Be Indian driver\nExpect the unexpected traffic 😉",
+      {
+        fontSize: "18px",
+        color: "#333333",
+        align: "center",
+        lineSpacing: 12,
+        wordWrap: { width: 320 }
+      }
+    ).setOrigin(0.5);
+
+    const restart = this.add.text(0, 80, "RESTART", {
+      fontSize: "22px",
+      backgroundColor: "#00aa00",
+      padding: { x: 26, y: 12 },
+      color: "#ffffff"
+    }).setOrigin(0.5).setInteractive();
+
+    restart.on("pointerdown", () => {
+      panel.destroy();
+      this.scene.restart();
+    });
+
+    panel.add([bg, t1, t2, t3, restart]);
   }
 
   update() {
